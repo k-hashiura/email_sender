@@ -1,0 +1,38 @@
+[project]
+name = "email-sender"
+version = "0.1.0"
+description = "Add your description here"
+authors = [
+    { name = "橋浦一輝", email = "k-hashiura@k-socket.co.jp" }
+]
+dependencies = [
+    "blastengine>=0.0.8",
+    "polars>=0.20.7",
+    "openpyxl>=3.1.2",
+    "click>=8.1.7",
+]
+readme = "README.md"
+requires-python = ">= 3.8"
+
+[project.scripts]
+bemail = "email_sender.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.rye]
+managed = true
+dev-dependencies = [
+    "pytest>=8.0.0",
+    "ruff>=0.2.1",
+]
+
+[tool.rye.scripts]
+
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/email_sender"]
