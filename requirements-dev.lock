@@ -9,17 +9,32 @@
 
 -e file:.
 blastengine==0.0.8
+    # via email-sender
 certifi==2024.2.2
+    # via requests
 charset-normalizer==3.3.2
+    # via requests
 click==8.1.7
+    # via email-sender
 et-xmlfile==1.1.0
+    # via openpyxl
 idna==3.6
+    # via requests
 iniconfig==2.0.0
+    # via pytest
 openpyxl==3.1.2
+    # via email-sender
 packaging==23.2
+    # via pytest
 pluggy==1.4.0
+    # via pytest
 polars==0.20.7
+    # via email-sender
 pytest==8.0.0
+python-json-logger==2.0.7
+    # via email-sender
 requests==2.31.0
+    # via blastengine
 ruff==0.2.1
 urllib3==2.2.0
+    # via requests
