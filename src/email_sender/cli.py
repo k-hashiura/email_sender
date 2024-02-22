@@ -6,30 +6,17 @@ import click
 from pythonjsonlogger import jsonlogger
 from pathlib import Path
 
-from typing import Callable
-
-from email_sender.services.txt2html import hi
+from email_sender.services.txt2html import convert_txt2html
+from email_sender.settings import load_settings
+from email_sender.template import load_template
+from email_sender.delivery import get_deliveries, send_emails
 
 
 logger = getLogger(__name__)
+settings = load_settings()
 
 
 CONFIG_FILENAME = "email_config.json"
-
-
-def _check_config_exists() -> bool:
-    return (Path(".") / CONFIG_FILENAME).is_file()
-
-
-def check_config_exists(f: Callable) -> Callable:
-    def wrapper(*args, **kwargs):
-        if not _check_config_exists():
-            click.echo(f"{CONFIG_FILENAME} isn't exists...")
-            sys.exit(1)
-        click.echo("hi")
-        return f(*args, **kwargs)
-
-    return wrapper
 
 
 def _setup_logger() -> None:
@@ -62,35 +49,80 @@ def cli() -> None:
 
 
 @cli.command("txt2html")
-def txt2html():
-    """プレーンテキストをHTMLのテンプレートに変換"""
-    logger.debug("invoking txt2html")
-
-
-@cli.command("init")
 @click.argument(
-    "dirname",
+    "txt_file",
     type=click.Path(path_type=Path),
 )
-def init_email_dir(dirname: Path) -> None:
-    if dirname.exists():
-        click.secho()
+def txt2html(txt_file: Path):
+    """プレーンテキストをHTMLのテンプレートに変換"""
+    logger.debug("invoking txt2html")
+    convert_txt2html(txt_file)
+
+
+@cli.command("tempalte")
+def template():
+    txt_template, html_template = load_template()
+    click.echo(txt_template.render())
+
+
+@cli.command("env")
+def env():
+    click.echo(load_settings())
 
 
 @cli.command("check")
-@check_config_exists
-def check():
+@click.argument(
+    "src_file",
+    type=click.Path(path_type=Path),
+)
+def check(src_file: Path):
     """メールの送付ファイルをチェック"""
 
 
+
+@click.argument(
+    "src_file",
+    type=click.Path(path_type=Path),
+)
+@click.option(
+    "--dryrun/--no-dryrun", "is_dryrun", help="実際に送付", default=True, is_flag=True
+)
 @cli.command("send")
-@check_config_exists
-def send() -> None:
+def send(src_file: Path, is_dryrun: bool) -> None:
+    _setup_logger()
     """本番のメールを送付"""
+    # 設定値を出力
+    logger.info({**{"message": "Settings"}, **settings.model_dump()})
+
+    deliveries = get_deliveries(src_file)
+    print(deliveries)
+    logger.info(
+        {
+            "message": "今回の送付情報",
+            "detail": {
+                "count": len(deliveries),
+                "first_email": deliveries[0].to_addr,
+                "last_email": deliveries[-1].to_addr,
+            },
+        }
+    )
+
+    # DRY RUNかどうか
+    if is_dryrun:
+        logger.info(f"確認を実行しますか？")
+    else:
+        logger.info(f"本番の送付を実行しますか？")
+
+    is_ok = click.confirm("Ok to Continue?")
+    if not is_ok:
+        logger.info("Aborted by user.")
+        return
+
+    send_emails(deliveries, is_dryrun)
+    # send_emails_in_smtp(deliveries, real)
 
 
 def main() -> None:
-    _setup_logger()
     cli()
 
 
