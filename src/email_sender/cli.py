@@ -1,6 +1,5 @@
 from datetime import datetime
-from logging import DEBUG, FileHandler, StreamHandler, getLogger
-import sys
+from logging import DEBUG, FileHandler, StreamHandler, getLogger, INFO
 
 import click
 from pythonjsonlogger import jsonlogger
@@ -8,12 +7,11 @@ from pathlib import Path
 
 from email_sender.services.txt2html import convert_txt2html
 from email_sender.settings import load_settings
-from email_sender.template import load_template
 from email_sender.delivery import get_deliveries, send_emails
+from email_sender.template import load_template
 
 
 logger = getLogger(__name__)
-settings = load_settings()
 
 
 CONFIG_FILENAME = "email_config.json"
@@ -39,6 +37,7 @@ def _setup_logger() -> None:
     # StreamHandlerを定義
     sh = StreamHandler()
     logger.addHandler(sh)
+    sh.setLevel(INFO)
     logger.setLevel(DEBUG)
 
 
@@ -59,7 +58,7 @@ def txt2html(txt_file: Path):
     convert_txt2html(txt_file)
 
 
-@cli.command("tempalte")
+@cli.command("template")
 def template():
     txt_template, html_template = load_template()
     click.echo(txt_template.render())
@@ -92,6 +91,7 @@ def send(src_file: Path, is_dryrun: bool) -> None:
     _setup_logger()
     """本番のメールを送付"""
     # 設定値を出力
+    settings = load_settings()
     logger.info({**{"message": "Settings"}, **settings.model_dump()})
 
     deliveries = get_deliveries(src_file)

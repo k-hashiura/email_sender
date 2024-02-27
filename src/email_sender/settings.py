@@ -3,7 +3,6 @@ from pydantic import EmailStr, SecretStr
 
 
 class Settings(BaseSettings):
-    send_list_filename: str
     send_list_sheetname: str = "Sheet1"
 
     from_name: str
