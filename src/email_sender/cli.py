@@ -58,14 +58,16 @@ def txt2html(txt_file: Path):
     convert_txt2html(txt_file)
 
 
-@cli.command("template")
-def template():
-    txt_template, html_template = load_template()
-    click.echo(txt_template.render())
+# @cli.command("template")
+# def template():
+#     """テキストテンプレートの描画テスト"""
+#     txt_template, html_template = load_template()
+#     click.echo(txt_template.render())
 
 
 @cli.command("env")
 def env():
+    """環境変数読み込みテスト"""
     click.echo(load_settings())
 
 
@@ -76,7 +78,7 @@ def env():
 )
 def check(src_file: Path):
     """メールの送付ファイルをチェック"""
-
+    raise NotImplementedError
 
 
 @click.argument(

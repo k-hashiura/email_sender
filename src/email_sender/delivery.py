@@ -27,7 +27,8 @@ class DeliveryItem(BaseModel):
     """送付ごとに固有な情報"""
 
     email_address: str
-    member_id: str
+    shop_id: str
+    shop_name: str
 
     @property
     def to_addr(self) -> str:
@@ -53,7 +54,8 @@ def extract_data_from_excel(src_file: Path) -> pd.DataFrame:
 
     rename_cols = {
         "メールアドレス": "email_address",
-        "メンバーID": "member_id",
+        "協賛店ＩＤ": "shop_id",
+        "参加店名": "shop_name",
     }
 
     result_df = raw_df.rename(columns=rename_cols).fillna("")
