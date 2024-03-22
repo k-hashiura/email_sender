@@ -27,8 +27,14 @@ class DeliveryItem(BaseModel):
     """送付ごとに固有な情報"""
 
     email_address: str
-    shop_id: str
-    shop_name: str
+    history_id: str
+    game_date: str
+    game_opponent: str
+    seet_name_1: str
+    seet_url_1: str
+    seet_name_2: str
+    seet_url_2: str
+
 
     @property
     def to_addr(self) -> str:
@@ -43,19 +49,24 @@ class DeliveryItem(BaseModel):
         return html_template.render(self.model_dump())
 
 
-def extract_data_from_excel(src_file: Path) -> pd.DataFrame:
+def extract_data_from_excel(src_file: Path, sheet_name: str | None) -> pd.DataFrame:
     # Excelの読み込み
     raw_df = pd.read_excel(
         io=src_file,
-        sheet_name=settings.send_list_sheetname,
+        sheet_name=(sheet_name or settings.send_list_sheetname),
         # skiprows=1,
         dtype=str,
     )
 
     rename_cols = {
         "メールアドレス": "email_address",
-        "協賛店ＩＤ": "shop_id",
-        "参加店名": "shop_name",
+        "抽選応募履歴ID": "history_id",
+        "Date": "game_date",
+        "Team": "game_opponent",
+        "Sheet1": "seet_name_1",
+        "Sheet1_URL": "seet_url_1",
+        "Sheet2": "seet_name_2",
+        "Sheet2_URL": "seet_url_2",
     }
 
     result_df = raw_df.rename(columns=rename_cols).fillna("")
@@ -75,8 +86,8 @@ def convert_data(excel_df: pd.DataFrame) -> list[DeliveryItem]:
     return result
 
 
-def get_deliveries(src_file: Path) -> list[DeliveryItem]:
-    return convert_data(extract_data_from_excel(src_file))
+def get_deliveries(src_file: Path, sheet_name: str | None) -> list[DeliveryItem]:
+    return convert_data(extract_data_from_excel(src_file, sheet_name))
 
 
 def _construct_transaction(delivery: DeliveryItem) -> Transaction:

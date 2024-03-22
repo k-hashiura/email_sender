@@ -86,17 +86,20 @@ def check(src_file: Path):
     type=click.Path(path_type=Path),
 )
 @click.option(
+    "--sheet", "-s",  "sheet_name", help="シート名（デフォルト: Sheet1）", default=None
+)
+@click.option(
     "--dryrun/--no-dryrun", "is_dryrun", help="実際に送付", default=True, is_flag=True
 )
 @cli.command("send")
-def send(src_file: Path, is_dryrun: bool) -> None:
+def send(src_file: Path, sheet_name: str | None, is_dryrun: bool) -> None:
     _setup_logger()
     """本番のメールを送付"""
     # 設定値を出力
     settings = load_settings()
     logger.info({**{"message": "Settings"}, **settings.model_dump()})
 
-    deliveries = get_deliveries(src_file)
+    deliveries = get_deliveries(src_file, sheet_name)
     print(deliveries)
     logger.info(
         {
