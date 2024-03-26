@@ -6,6 +6,7 @@ from email.mime.text import MIMEText
 from logging import getLogger
 from pathlib import Path
 from smtplib import SMTP
+import os
 
 import click
 import pandas as pd
@@ -27,14 +28,10 @@ class DeliveryItem(BaseModel):
     """送付ごとに固有な情報"""
 
     email_address: str
-    history_id: str
-    game_date: str
-    game_opponent: str
-    seet_name_1: str
-    seet_url_1: str
-    seet_name_2: str
-    seet_url_2: str
-
+    ecocute_count: str
+    aircon_count: str
+    name: str
+    amount: int
 
     @property
     def to_addr(self) -> str:
@@ -59,14 +56,11 @@ def extract_data_from_excel(src_file: Path, sheet_name: str | None) -> pd.DataFr
     )
 
     rename_cols = {
-        "メールアドレス": "email_address",
-        "抽選応募履歴ID": "history_id",
-        "Date": "game_date",
-        "Team": "game_opponent",
-        "Sheet1": "seet_name_1",
-        "Sheet1_URL": "seet_url_1",
-        "Sheet2": "seet_name_2",
-        "Sheet2_URL": "seet_url_2",
+        "メール": "email_address",
+        "メール表示　エコキュート達成": "ecocute_count",
+        "メール表示　エアコン達成": "aircon_count",
+        "メール表示　宛先": "name",
+        "振込額": "amount",
     }
 
     result_df = raw_df.rename(columns=rename_cols).fillna("")
