@@ -28,10 +28,8 @@ class DeliveryItem(BaseModel):
     """送付ごとに固有な情報"""
 
     email_address: str
-    ecocute_count: str
-    aircon_count: str
-    name: str
-    amount: int
+    history_id: str
+    ticket_place: str = "0526チケット引換場所.jpg"
 
     @property
     def to_addr(self) -> str:
@@ -56,11 +54,8 @@ def extract_data_from_excel(src_file: Path, sheet_name: str | None) -> pd.DataFr
     )
 
     rename_cols = {
-        "メール": "email_address",
-        "メール表示　エコキュート達成": "ecocute_count",
-        "メール表示　エアコン達成": "aircon_count",
-        "メール表示　宛先": "name",
-        "振込額": "amount",
+        "メールアドレス": "email_address",
+        "抽選応募履歴ID": "history_id",
     }
 
     result_df = raw_df.rename(columns=rename_cols).fillna("")
@@ -93,6 +88,7 @@ def _construct_transaction(delivery: DeliveryItem) -> Transaction:
     transaction.to(delivery.to_addr)
     transaction.text_part(delivery.text_part)
     transaction.html_part(delivery.html_part)
+    transaction.attachments(delivery.ticket_place)
     return transaction
 
 
