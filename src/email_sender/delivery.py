@@ -28,8 +28,8 @@ class DeliveryItem(BaseModel):
     """送付ごとに固有な情報"""
 
     email_address: str
-    history_id: str
-    ticket_place: str = "0526チケット引換場所.jpg"
+    shop_name: str
+    pdf_filename: str
 
     @property
     def to_addr(self) -> str:
@@ -49,13 +49,14 @@ def extract_data_from_excel(src_file: Path, sheet_name: str | None) -> pd.DataFr
     raw_df = pd.read_excel(
         io=src_file,
         sheet_name=(sheet_name or settings.send_list_sheetname),
-        # skiprows=1,
+        skiprows=1,
         dtype=str,
     )
 
     rename_cols = {
-        "メールアドレス": "email_address",
-        "抽選応募履歴ID": "history_id",
+        "mail_adress": "email_address",
+        "shop": "shop_name",
+        "pdf": "pdf_filename"
     }
 
     result_df = raw_df.rename(columns=rename_cols).fillna("")
@@ -88,7 +89,8 @@ def _construct_transaction(delivery: DeliveryItem) -> Transaction:
     transaction.to(delivery.to_addr)
     transaction.text_part(delivery.text_part)
     transaction.html_part(delivery.html_part)
-    transaction.attachments(delivery.ticket_place)
+    transaction.attachments(f'pdf/{delivery.pdf_filename}.pdf')
+
     return transaction
 
 
