@@ -28,7 +28,22 @@ class DeliveryItem(BaseModel):
     """送付ごとに固有な情報"""
 
     email_address: str
-    pdf_filename: str = "docs/参加店マニュアル_Vol.2.pdf"
+    shop_name: str
+    staff_name: str
+    prize1_name: str
+    prize1_comment: str
+    prize1_count_first: str
+    prize1_count_second: str
+    prize1_count_third: str
+    prize1_shop_name: str
+    prize1_url: str
+    prize2_name: str
+    prize2_comment: str
+    prize2_count_first: str
+    prize2_count_second: str
+    prize2_count_third: str
+
+    has_multiple_prizes: bool
 
     @property
     def to_addr(self) -> str:
@@ -49,13 +64,28 @@ def extract_data_from_excel(src_file: Path, sheet_name: str | None) -> pd.DataFr
         io=src_file,
         sheet_name=(sheet_name or settings.send_list_sheetname),
         # skiprows=1,
-        header=None,
-        names=['メールアドレス', ],
+        # header=None,
+        # names=['メールアドレス', ],
         dtype=str,
     )
 
     rename_cols = {
-        "メールアドレス": "email_address",
+        "ご担当者メールアドレス": "email_address",
+        "参加店名": "shop_name",
+        "ご担当者氏名": "staff_name",
+        "ご協賛品（アプリ・ＷＥＢサイト表示用）": "prize1_name",
+        "５．賞品ＰＲコメント": "prize1_comment",
+        "第１期（本数）": "prize1_count_first",
+        "第２期（本数）": "prize1_count_second",
+        "第３期（本数）": "prize1_count_third",
+        "３．協賛店名": "prize1_shop_name",
+        "４．URL": "prize1_url",
+        "②ご協賛品（アプリ・ＷＥＢサイト表示用）": "prize2_name",
+        "②５．賞品ＰＲコメント": "prize2_comment",
+        "②第１期（本数）": "prize2_count_first",
+        "②第２期（本数）": "prize2_count_second",
+        "②第３期（本数）": "prize2_count_third",
+        "複数あるか（1＝ある、0＝なし）": "has_multiple_prizes",
     }
 
     result_df = raw_df.rename(columns=rename_cols).fillna("")
@@ -88,7 +118,7 @@ def _construct_transaction(delivery: DeliveryItem) -> Transaction:
     transaction.to(delivery.to_addr)
     transaction.text_part(delivery.text_part)
     transaction.html_part(delivery.html_part)
-    transaction.attachments(delivery.pdf_filename)
+    # transaction.attachments(delivery.pdf_filename)
 
     return transaction
 
