@@ -28,8 +28,13 @@ class DeliveryItem(BaseModel):
     """送付ごとに固有な情報"""
 
     email_address: str
-    index: str
-    common_pdf_path: str = "pdf/各位_協力金振込内訳書の発行について（お知らせ）.pdf"
+    shop_id: int
+    shop_name: str
+    pdf_filename: str
+
+    @property
+    def pdf_path(self) -> str:
+        return f"pdf/{self.pdf_filename}.pdf"
 
     @property
     def to_addr(self) -> str:
@@ -49,18 +54,20 @@ def extract_data_from_excel(src_file: Path, sheet_name: str | None) -> pd.DataFr
     raw_df = pd.read_excel(
         io=src_file,
         sheet_name=(sheet_name or settings.send_list_sheetname),
-        # skiprows=1,
+        skiprows=1,
         # header=None,
         # names=['メールアドレス', ],
         dtype=str,
     )
 
     # 不要な行を削除
-    raw_df = raw_df.dropna(subset=["番号"])
+    # raw_df = raw_df.dropna(subset=["番号"])
 
     rename_cols = {
-        "メール": "email_address",
-        "番号": "index",
+        "メールアドレス": "email_address",
+        "参加店No.": "shop_id",
+        "shop": "shop_name",
+        "PDFファイル名": "pdf_filename",
     }
 
     result_df = raw_df.rename(columns=rename_cols).fillna("")
@@ -93,19 +100,11 @@ def _construct_transaction(delivery: DeliveryItem) -> Transaction:
     transaction.to(delivery.to_addr)
     transaction.text_part(delivery.text_part)
     transaction.html_part(delivery.html_part)
-    transaction.attachments(delivery.common_pdf_path)
 
-    def search_pdf(index: str) -> str:
-        from glob import glob
-        files = glob(os.path.join("pdf/エルパル振込内訳書一式（180通）", f"{index}_*.pdf"))
-        if len(files) != 1:
-            t = f"PDFファイルの検索に失敗しました。({len(files)}件のPDFが見つかりました。)\n{'\n'.join(files)}"
-            raise RuntimeError(t)
-        return files[0]
-    detail_pdf_path = search_pdf(delivery.index)
-    logger.info(detail_pdf_path)
+    if not os.path.isfile(delivery.pdf_path):
+        raise FileNotFoundError(f"NOT FOUND: {delivery.pdf_path}")
 
-    transaction.attachments(detail_pdf_path)
+    transaction.attachments(delivery.pdf_path)
 
     return transaction
 
