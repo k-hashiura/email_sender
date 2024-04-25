@@ -28,13 +28,15 @@ class DeliveryItem(BaseModel):
     """送付ごとに固有な情報"""
 
     email_address: str
-    shop_id: int
-    shop_name: str
+    iss_num: str
+    addressee: str
+    paydate: str
+    app_num: str
     pdf_filename: str
 
     @property
     def pdf_path(self) -> str:
-        return f"pdf/{self.pdf_filename}.pdf"
+        return f"pdf/{self.pdf_filename}"
 
     @property
     def to_addr(self) -> str:
@@ -54,7 +56,7 @@ def extract_data_from_excel(src_file: Path, sheet_name: str | None) -> pd.DataFr
     raw_df = pd.read_excel(
         io=src_file,
         sheet_name=(sheet_name or settings.send_list_sheetname),
-        skiprows=1,
+        # skiprows=1,
         # header=None,
         # names=['メールアドレス', ],
         dtype=str,
@@ -64,10 +66,12 @@ def extract_data_from_excel(src_file: Path, sheet_name: str | None) -> pd.DataFr
     # raw_df = raw_df.dropna(subset=["番号"])
 
     rename_cols = {
-        "メールアドレス": "email_address",
-        "参加店No.": "shop_id",
-        "shop": "shop_name",
-        "PDFファイル名": "pdf_filename",
+        "電気工事店メールアドレス": "email_address",
+        "発行№": "iss_num",
+        "支払者名": "addressee",
+        "取引年月日": "paydate",
+        "受付番号": "app_num",
+        "pdf_filename": "pdf_filename",
     }
 
     result_df = raw_df.rename(columns=rename_cols).fillna("")
