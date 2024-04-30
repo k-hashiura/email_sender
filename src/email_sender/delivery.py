@@ -68,7 +68,7 @@ def extract_data_from_excel(src_file: Path, sheet_name: str | None) -> pd.DataFr
     rename_cols = {
         "電気工事店メールアドレス": "email_address",
         "発行№": "iss_num",
-        "支払者名": "addressee",
+        "工事店名称": "addressee",
         "取引年月日": "paydate",
         "受付番号": "app_num",
         "pdf_filename": "pdf_filename",
