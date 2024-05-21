@@ -10,6 +10,10 @@
 -e file:.
 annotated-types==0.6.0
     # via pydantic
+appnope==0.1.4
+    # via ipykernel
+asttokens==2.4.1
+    # via stack-data
 blastengine==0.0.5
     # via email-sender
 certifi==2024.2.2
@@ -18,33 +22,71 @@ charset-normalizer==3.3.2
     # via requests
 click==8.1.7
     # via email-sender
+comm==0.2.2
+    # via ipykernel
+debugpy==1.8.1
+    # via ipykernel
+decorator==5.1.1
+    # via ipython
 dnspython==2.6.1
     # via email-validator
 email-validator==2.1.0.post1
     # via email-sender
 et-xmlfile==1.1.0
     # via openpyxl
+executing==2.0.1
+    # via stack-data
 idna==3.6
     # via email-validator
     # via requests
 iniconfig==2.0.0
     # via pytest
+ipykernel==6.29.4
+ipython==8.24.0
+    # via ipykernel
+jedi==0.19.1
+    # via ipython
 jinja2==3.1.3
     # via email-sender
+jupyter-client==8.6.1
+    # via ipykernel
+jupyter-core==5.7.2
+    # via ipykernel
+    # via jupyter-client
 markupsafe==2.1.5
     # via jinja2
+matplotlib-inline==0.1.7
+    # via ipykernel
+    # via ipython
+nest-asyncio==1.6.0
+    # via ipykernel
 numpy==1.26.4
     # via pandas
 openpyxl==3.1.2
     # via email-sender
 packaging==23.2
+    # via ipykernel
     # via pytest
 pandas==2.2.0
     # via email-sender
+parso==0.8.4
+    # via jedi
+pexpect==4.9.0
+    # via ipython
+platformdirs==4.2.2
+    # via jupyter-core
 pluggy==1.4.0
     # via pytest
 polars==0.20.7
     # via email-sender
+prompt-toolkit==3.0.43
+    # via ipython
+psutil==5.9.8
+    # via ipykernel
+ptyprocess==0.7.0
+    # via pexpect
+pure-eval==0.2.2
+    # via stack-data
 pydantic==2.6.1
     # via email-sender
     # via pydantic-settings
@@ -52,8 +94,11 @@ pydantic-core==2.16.2
     # via pydantic
 pydantic-settings==2.2.1
     # via email-sender
+pygments==2.18.0
+    # via ipython
 pytest==8.0.0
 python-dateutil==2.8.2
+    # via jupyter-client
     # via pandas
 python-dotenv==1.0.1
     # via pydantic-settings
@@ -61,11 +106,27 @@ python-json-logger==2.0.7
     # via email-sender
 pytz==2024.1
     # via pandas
+pyzmq==26.0.3
+    # via ipykernel
+    # via jupyter-client
 requests==2.31.0
     # via blastengine
 ruff==0.2.1
 six==1.16.0
+    # via asttokens
     # via python-dateutil
+stack-data==0.6.3
+    # via ipython
+tornado==6.4
+    # via ipykernel
+    # via jupyter-client
+traitlets==5.14.3
+    # via comm
+    # via ipykernel
+    # via ipython
+    # via jupyter-client
+    # via jupyter-core
+    # via matplotlib-inline
 typing-extensions==4.9.0
     # via pydantic
     # via pydantic-core
@@ -73,3 +134,5 @@ tzdata==2024.1
     # via pandas
 urllib3==2.2.0
     # via requests
+wcwidth==0.2.13
+    # via prompt-toolkit

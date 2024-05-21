@@ -98,11 +98,11 @@ def get_result_from_logfile(logfile: Path):
     ids = extract_id_list(logfile)
 
     result_dir = Path('result')
-    # result_dir.mkdir(exist_ok=True)
+    result_dir.mkdir(exist_ok=True)
     result_jsonl_path = result_dir / logfile.name
-    # t = get_log_txt(ids)
-    # with open(result_jsonl_path, "w") as f:
-    #     f.write(t)
+    t = get_log_txt(ids)
+    with open(result_jsonl_path, "w") as f:
+        f.write(t)
 
     result_xlsx_path = result_jsonl_path.with_suffix('.xlsx')
     result_df = parse_result_jsonl(result_jsonl_path)
@@ -119,3 +119,7 @@ def get_result_from_logfile(logfile: Path):
     )
     os.makedirs('sample', exist_ok=True)
     log_with_result.to_excel('sample/LOG-RESULT.xlsx')
+
+
+if __name__ == "__main__":
+    get_result_from_logfile(Path("../../data/2024-05-15-NW適格請求書2回目/logs/2024-05-15T15:03:17.809933-log.jsonl"))
