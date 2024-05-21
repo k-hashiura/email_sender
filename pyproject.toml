@@ -32,6 +32,7 @@ managed = true
 dev-dependencies = [
     "pytest>=8.0.0",
     "ruff>=0.2.1",
+    "ipykernel>=6.29.4",
 ]
 
 [tool.rye.scripts]
