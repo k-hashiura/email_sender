@@ -122,4 +122,8 @@ def get_result_from_logfile(logfile: Path):
 
 
 if __name__ == "__main__":
-    get_result_from_logfile(Path("../../data/2024-05-15-NW適格請求書2回目/logs/2024-05-15T15:03:17.809933-log.jsonl"))
+    get_result_from_logfile(
+        Path(
+            "../../../data/2024-05-21-1-ベガルタ/2024-05-21-2_ベガルタ後期/logs/2024-05-21T18:29:55.980232-log.jsonl"
+        )
+    )

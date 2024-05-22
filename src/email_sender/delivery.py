@@ -27,16 +27,14 @@ logger = getLogger(__name__)
 class DeliveryItem(BaseModel):
     """送付ごとに固有な情報"""
 
+    shop_id: str
+    shop_name: str
     email_address: str
-    # iss_num: str
-    # addressee: str
-    # paydate: str
-    # app_num: str
-    pdf_filename: str = "参加店マニュアル_ver02.pdf"
+    pdf_filename: str
 
     @property
     def pdf_path(self) -> str:
-        return f"pdf/{self.pdf_filename}"
+        return f'pdf/{self.pdf_filename}.pdf'
 
     @property
     def to_addr(self) -> str:
@@ -56,9 +54,9 @@ def extract_data_from_excel(src_file: Path, sheet_name: str | None) -> pd.DataFr
     raw_df = pd.read_excel(
         io=src_file,
         sheet_name=(sheet_name or settings.send_list_sheetname),
-        # skiprows=1,
-        header=None,
-        names=['メールアドレス', 'is_check'],
+        skiprows=1,
+        # header=None,
+        # names=['メールアドレス', 'is_check'],
         dtype=str,
     )
 
@@ -66,12 +64,10 @@ def extract_data_from_excel(src_file: Path, sheet_name: str | None) -> pd.DataFr
     # raw_df = raw_df.dropna(subset=["番号"])
 
     rename_cols = {
+        "参加店No.": "shop_id",
+        "shop": "shop_name",
         "メールアドレス": "email_address",
-        # "発行№": "iss_num",
-        # "工事店名称": "addressee",
-        # "取引年月日": "paydate",
-        # "受付番号": "app_num",
-        # "pdf_filename": "pdf_filename",
+        "PDFファイル名": "pdf_filename",
     }
 
     result_df = raw_df.rename(columns=rename_cols).fillna("")
