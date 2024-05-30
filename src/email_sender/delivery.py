@@ -27,14 +27,20 @@ logger = getLogger(__name__)
 class DeliveryItem(BaseModel):
     """送付ごとに固有な情報"""
 
-    shop_id: str
+    app_id: str
     shop_name: str
     email_address: str
-    pdf_filename: str
+    sub_amount: str
+    eq_count: str
+    ac_count: str
+    eq_lease: str
+    ac_lease: str
+    total_amount: str
+    paid_amount: str
 
     @property
     def pdf_path(self) -> str:
-        return f'pdf/{self.pdf_filename}.pdf'
+        return "docs/協力金振込対象実績について（お知らせ）.pdf"
 
     @property
     def to_addr(self) -> str:
@@ -54,23 +60,51 @@ def extract_data_from_excel(src_file: Path, sheet_name: str | None) -> pd.DataFr
     raw_df = pd.read_excel(
         io=src_file,
         sheet_name=(sheet_name or settings.send_list_sheetname),
-        skiprows=1,
+        # skiprows=1,
         # header=None,
         # names=['メールアドレス', 'is_check'],
         dtype=str,
     )
 
+    # 数値をゼロ埋め & フォーマット
+
+
+
     # 不要な行を削除
     # raw_df = raw_df.dropna(subset=["番号"])
+    # raw_df = pd.to_datetime(raw_df["メール日"]).dt.date
+    raw_df = raw_df[raw_df["メール日"] == '2024-05-29 00:00:00']
+    raw_df.to_csv('test.csv')
 
     rename_cols = {
-        "参加店No.": "shop_id",
-        "shop": "shop_name",
+        "申込ID": "app_id",
+        "会社名": "shop_name",
         "メールアドレス": "email_address",
-        "PDFファイル名": "pdf_filename",
+        "差額振込": "sub_amount",
+        "最終ＥＱ（計）": "eq_count",
+        "最終ＡＣ（計）": "ac_count",
+        "最終EQリース": "eq_lease",
+        "最終ＡＣリース": "ac_lease",
+        "(total)振込額": "total_amount",
+        "振込済み額": "paid_amount",
     }
 
-    result_df = raw_df.rename(columns=rename_cols).fillna("")
+    int_cols = [
+        "sub_amount",
+        "eq_count",
+        "ac_count",
+        "eq_lease",
+        "ac_lease",
+        "total_amount",
+        "paid_amount",
+    ]
+
+    result_df = raw_df.rename(columns=rename_cols)
+
+    for col in int_cols:
+        result_df[col] = result_df[col].fillna(0).astype(int).apply(lambda x: f"{x:,}")
+
+    result_df = result_df.fillna('')
 
     return result_df
 
