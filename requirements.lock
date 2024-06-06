@@ -10,7 +10,7 @@
 -e file:.
 annotated-types==0.6.0
     # via pydantic
-blastengine==0.0.5
+blastengine==0.0.11
     # via email-sender
 certifi==2024.2.2
     # via requests

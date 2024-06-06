@@ -14,7 +14,7 @@ appnope==0.1.4
     # via ipykernel
 asttokens==2.4.1
     # via stack-data
-blastengine==0.0.5
+blastengine==0.0.11
     # via email-sender
 certifi==2024.2.2
     # via requests

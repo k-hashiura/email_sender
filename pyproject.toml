@@ -6,7 +6,7 @@ authors = [
     { name = "橋浦一輝", email = "k-hashiura@k-socket.co.jp" }
 ]
 dependencies = [
-    "blastengine==0.0.5",
+    "blastengine>=0.0.11",
     "polars>=0.20.7",
     "openpyxl>=3.1.2",
     "click>=8.1.7",

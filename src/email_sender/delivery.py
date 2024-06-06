@@ -28,19 +28,16 @@ class DeliveryItem(BaseModel):
     """送付ごとに固有な情報"""
 
     app_id: str
-    shop_name: str
     email_address: str
-    sub_amount: str
-    eq_count: str
-    ac_count: str
-    eq_lease: str
-    ac_lease: str
-    total_amount: str
-    paid_amount: str
 
-    @property
-    def pdf_path(self) -> str:
-        return "docs/協力金振込対象実績について（お知らせ）.pdf"
+    # @property
+    # def pdf_path(self) -> str:
+    #     return "docs/協力金振込対象実績について（お知らせ）.pdf"
+    cc_list: list[str] = [
+        # "matsuura.takeshi.yz@tohoku-epco.co.jp",
+        # "tanaka.nagisa.nt@tohoku-epco.co.jp",
+        "k-hashiura+cc@k-socket.co.jp"
+    ]
 
     @property
     def to_addr(self) -> str:
@@ -60,7 +57,7 @@ def extract_data_from_excel(src_file: Path, sheet_name: str | None) -> pd.DataFr
     raw_df = pd.read_excel(
         io=src_file,
         sheet_name=(sheet_name or settings.send_list_sheetname),
-        # skiprows=1,
+        skiprows=3,
         # header=None,
         # names=['メールアドレス', 'is_check'],
         dtype=str,
@@ -68,41 +65,31 @@ def extract_data_from_excel(src_file: Path, sheet_name: str | None) -> pd.DataFr
 
     # 数値をゼロ埋め & フォーマット
 
-
-
     # 不要な行を削除
     # raw_df = raw_df.dropna(subset=["番号"])
     # raw_df = pd.to_datetime(raw_df["メール日"]).dt.date
-    raw_df = raw_df[raw_df["メール日"] == '2024-05-29 00:00:00']
-    raw_df.to_csv('test.csv')
+    # raw_df = raw_df[raw_df["メール日"] == '2024-05-29 00:00:00']
+    # raw_df.to_csv('test.csv')
 
     rename_cols = {
-        "申込ID": "app_id",
-        "会社名": "shop_name",
+        "通し番号": "app_id",
         "メールアドレス": "email_address",
-        "差額振込": "sub_amount",
-        "最終ＥＱ（計）": "eq_count",
-        "最終ＡＣ（計）": "ac_count",
-        "最終EQリース": "eq_lease",
-        "最終ＡＣリース": "ac_lease",
-        "(total)振込額": "total_amount",
-        "振込済み額": "paid_amount",
     }
 
-    int_cols = [
-        "sub_amount",
-        "eq_count",
-        "ac_count",
-        "eq_lease",
-        "ac_lease",
-        "total_amount",
-        "paid_amount",
-    ]
+    # int_cols = [
+    #     "sub_amount",
+    #     "eq_count",
+    #     "ac_count",
+    #     "eq_lease",
+    #     "ac_lease",
+    #     "total_amount",
+    #     "paid_amount",
+    # ]
 
     result_df = raw_df.rename(columns=rename_cols)
 
-    for col in int_cols:
-        result_df[col] = result_df[col].fillna(0).astype(int).apply(lambda x: f"{x:,}")
+    # for col in int_cols:
+    #     result_df[col] = result_df[col].fillna(0).astype(int).apply(lambda x: f"{x:,}")
 
     result_df = result_df.fillna('')
 
@@ -129,16 +116,18 @@ def _construct_transaction(delivery: DeliveryItem) -> Transaction:
     transaction = Transaction()
     # 設定から
     transaction.subject(settings.email_subject)
-    transaction.fromAddress(email=settings.from_address, name=settings.from_name)
+    transaction.from_address(email=settings.from_address, name=settings.from_name)
     # 各送付ごと
     transaction.to(delivery.to_addr)
+    for cc in delivery.cc_list:
+        transaction.cc(cc)
     transaction.text_part(delivery.text_part)
     transaction.html_part(delivery.html_part)
 
-    if not os.path.isfile(delivery.pdf_path):
-        raise FileNotFoundError(f"NOT FOUND: {delivery.pdf_path}")
+    # if not os.path.isfile(delivery.pdf_path):
+    #     raise FileNotFoundError(f"NOT FOUND: {delivery.pdf_path}")
 
-    transaction.attachments(delivery.pdf_path)
+    # transaction.attachments(delivery.pdf_path)
 
     return transaction
 
