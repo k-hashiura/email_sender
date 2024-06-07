@@ -31,7 +31,8 @@ class DeliveryItem(BaseModel):
 
     app_id: str
     email_address: str
-    transfer_date: str
+    address: str
+    confirm_code: str
 
     # @property
     # def pdf_path(self) -> str:
@@ -69,13 +70,14 @@ def extract_data_from_excel(src_file: Path, sheet_name: str | None) -> pd.DataFr
     # raw_df = raw_df[raw_df["メール日"] == '2024-05-29 00:00:00']
     # raw_df.to_csv('test.csv')
 
-    locale.setlocale(locale.LC_TIME, "ja_JP.UTF-8")
-    raw_df["振込予定日"] = pd.to_datetime(raw_df["振込予定日"]).dt.strftime("%Y年%m月%d日（%a）", )
+    # locale.setlocale(locale.LC_TIME, "ja_JP.UTF-8")
+    # raw_df["振込予定日"] = pd.to_datetime(raw_df["振込予定日"]).dt.strftime("%Y年%m月%d日（%a）", )
 
     rename_cols = {
         "KP仮ID": "app_id",
         "メールアドレス": "email_address",
-        "振込予定日": "transfer_date",
+        "供給地点住所（2024/05/24）": "address",
+        "確認コード": "confirm_code",
     }
 
     # int_cols = [
