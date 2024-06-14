@@ -31,8 +31,8 @@ class DeliveryItem(BaseModel):
 
     app_id: str
     email_address: str
-    address: str
-    confirm_code: str
+    # address: str
+    # confirm_code: str
 
     # @property
     # def pdf_path(self) -> str:
@@ -76,8 +76,8 @@ def extract_data_from_excel(src_file: Path, sheet_name: str | None) -> pd.DataFr
     rename_cols = {
         "KP仮ID": "app_id",
         "メールアドレス": "email_address",
-        "供給地点住所（2024/05/24）": "address",
-        "確認コード": "confirm_code",
+        # "供給地点住所（2024/05/24）": "address",
+        # "確認コード": "confirm_code",
     }
 
     # int_cols = [
