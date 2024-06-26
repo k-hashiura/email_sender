@@ -7,8 +7,6 @@ from logging import getLogger
 from pathlib import Path
 from smtplib import SMTP
 import os
-import locale
-
 
 import click
 import pandas as pd
@@ -31,12 +29,14 @@ class DeliveryItem(BaseModel):
 
     app_id: str
     email_address: str
-    # address: str
-    # confirm_code: str
 
     # @property
     # def pdf_path(self) -> str:
     #     return "docs/協力金振込対象実績について（お知らせ）.pdf"
+    cc_list: list[str] = [
+        "matsuura.takeshi.yz@tohoku-epco.co.jp",
+        "tanaka.nagisa.nt@tohoku-epco.co.jp",
+    ]
 
     @property
     def to_addr(self) -> str:
@@ -56,7 +56,7 @@ def extract_data_from_excel(src_file: Path, sheet_name: str | None) -> pd.DataFr
     raw_df = pd.read_excel(
         io=src_file,
         sheet_name=(sheet_name or settings.send_list_sheetname),
-        # skiprows=3,
+        skiprows=3,
         # header=None,
         # names=['メールアドレス', 'is_check'],
         dtype=str,
@@ -70,14 +70,9 @@ def extract_data_from_excel(src_file: Path, sheet_name: str | None) -> pd.DataFr
     # raw_df = raw_df[raw_df["メール日"] == '2024-05-29 00:00:00']
     # raw_df.to_csv('test.csv')
 
-    # locale.setlocale(locale.LC_TIME, "ja_JP.UTF-8")
-    # raw_df["振込予定日"] = pd.to_datetime(raw_df["振込予定日"]).dt.strftime("%Y年%m月%d日（%a）", )
-
     rename_cols = {
-        "KP仮ID": "app_id",
+        "通し番号": "app_id",
         "メールアドレス": "email_address",
-        # "供給地点住所（2024/05/24）": "address",
-        # "確認コード": "confirm_code",
     }
 
     # int_cols = [
@@ -113,6 +108,8 @@ def convert_data(excel_df: pd.DataFrame) -> list[DeliveryItem]:
 
 
 def get_deliveries(src_file: Path, sheet_name: str | None) -> list[DeliveryItem]:
+    if "留意事項" not in src_file.name:
+        raise RuntimeError('留意事項メールじゃない！')
     return convert_data(extract_data_from_excel(src_file, sheet_name))
 
 
@@ -123,8 +120,8 @@ def _construct_transaction(delivery: DeliveryItem) -> Transaction:
     transaction.from_address(email=settings.from_address, name=settings.from_name)
     # 各送付ごと
     transaction.to(delivery.to_addr)
-    # for cc in delivery.cc_list:
-    #     transaction.cc(cc)
+    for cc in delivery.cc_list:
+        transaction.cc(cc)
     transaction.text_part(delivery.text_part)
     transaction.html_part(delivery.html_part)
 

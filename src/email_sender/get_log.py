@@ -122,8 +122,6 @@ def get_result_from_logfile(logfile: Path):
 
 
 if __name__ == "__main__":
-    get_result_from_logfile(
-        Path(
-            "../../data/2024-05-27-NWインボイス定例/logs/2024-05-27T13:51:52.375889-log.jsonl"
-        )
-    )
+    import sys
+    logfile = Path(sys.argv[1])
+    get_result_from_logfile(logfile)
