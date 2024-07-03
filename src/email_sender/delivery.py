@@ -27,16 +27,16 @@ logger = getLogger(__name__)
 class DeliveryItem(BaseModel):
     """送付ごとに固有な情報"""
 
+    app_id: str
     email_address: str
-    iss_num: str
-    addressee: str
-    paydate: str
-    app_num: str
-    pdf_filename: str
 
-    @property
-    def pdf_path(self) -> str:
-        return f"pdf/{self.pdf_filename}"
+    # @property
+    # def pdf_path(self) -> str:
+    #     return "docs/協力金振込対象実績について（お知らせ）.pdf"
+    cc_list: list[str] = [
+        "yamaya.taichi.un@tohoku-epco.co.jp",
+        "tanaka.nagisa.nt@tohoku-epco.co.jp",
+    ]
 
     @property
     def to_addr(self) -> str:
@@ -56,25 +56,41 @@ def extract_data_from_excel(src_file: Path, sheet_name: str | None) -> pd.DataFr
     raw_df = pd.read_excel(
         io=src_file,
         sheet_name=(sheet_name or settings.send_list_sheetname),
-        # skiprows=1,
+        skiprows=3,
         # header=None,
-        # names=['メールアドレス', ],
+        # names=['メールアドレス', 'is_check'],
         dtype=str,
     )
 
+    # 数値をゼロ埋め & フォーマット
+
     # 不要な行を削除
     # raw_df = raw_df.dropna(subset=["番号"])
+    # raw_df = pd.to_datetime(raw_df["メール日"]).dt.date
+    # raw_df = raw_df[raw_df["メール日"] == '2024-05-29 00:00:00']
+    # raw_df.to_csv('test.csv')
 
     rename_cols = {
-        "電気工事店メールアドレス": "email_address",
-        "発行№": "iss_num",
-        "支払者名": "addressee",
-        "取引年月日": "paydate",
-        "受付番号": "app_num",
-        "pdf_filename": "pdf_filename",
+        "通し番号": "app_id",
+        "メールアドレス": "email_address",
     }
 
-    result_df = raw_df.rename(columns=rename_cols).fillna("")
+    # int_cols = [
+    #     "sub_amount",
+    #     "eq_count",
+    #     "ac_count",
+    #     "eq_lease",
+    #     "ac_lease",
+    #     "total_amount",
+    #     "paid_amount",
+    # ]
+
+    result_df = raw_df.rename(columns=rename_cols)
+
+    # for col in int_cols:
+    #     result_df[col] = result_df[col].fillna(0).astype(int).apply(lambda x: f"{x:,}")
+
+    result_df = result_df.fillna('')
 
     return result_df
 
@@ -92,6 +108,8 @@ def convert_data(excel_df: pd.DataFrame) -> list[DeliveryItem]:
 
 
 def get_deliveries(src_file: Path, sheet_name: str | None) -> list[DeliveryItem]:
+    if "留意事項" not in src_file.name:
+        raise RuntimeError('留意事項メールじゃない！')
     return convert_data(extract_data_from_excel(src_file, sheet_name))
 
 
@@ -102,13 +120,15 @@ def _construct_transaction(delivery: DeliveryItem) -> Transaction:
     transaction.from_address(email=settings.from_address, name=settings.from_name)
     # 各送付ごと
     transaction.to(delivery.to_addr)
+    for cc in delivery.cc_list:
+        transaction.cc(cc)
     transaction.text_part(delivery.text_part)
     transaction.html_part(delivery.html_part)
 
-    if not os.path.isfile(delivery.pdf_path):
-        raise FileNotFoundError(f"NOT FOUND: {delivery.pdf_path}")
+    # if not os.path.isfile(delivery.pdf_path):
+    #     raise FileNotFoundError(f"NOT FOUND: {delivery.pdf_path}")
 
-    transaction.attachments(delivery.pdf_path)
+    # transaction.attachments(delivery.pdf_path)
 
     return transaction
 
