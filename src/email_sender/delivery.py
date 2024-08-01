@@ -28,12 +28,12 @@ class DeliveryItem(BaseModel):
 
     email_address: str
     history_id: str
-    game_date: str
-    game_opponent: str
-    seet_name_1: str
-    seet_url_1: str
-    seet_name_2: str
-    seet_url_2: str
+    # game_date: str
+    # game_opponent: str
+    # seet_name_1: str
+    # seet_url_1: str
+    # seet_name_2: str
+    # seet_url_2: str
 
 
     @property
@@ -61,12 +61,12 @@ def extract_data_from_excel(src_file: Path, sheet_name: str | None) -> pd.DataFr
     rename_cols = {
         "メールアドレス": "email_address",
         "抽選応募履歴ID": "history_id",
-        "Date": "game_date",
-        "Team": "game_opponent",
-        "Sheet01": "seet_name_1",
-        "Sheet01URL": "seet_url_1",
-        "Sheet02": "seet_name_2",
-        "Sheet02URL": "seet_url_2",
+        # "Date": "game_date",
+        # "Team": "game_opponent",
+        # "Sheet01": "seet_name_1",
+        # "Sheet01URL": "seet_url_1",
+        # "Sheet02": "seet_name_2",
+        # "Sheet02URL": "seet_url_2",
     }
 
     result_df = raw_df.rename(columns=rename_cols).fillna("")
